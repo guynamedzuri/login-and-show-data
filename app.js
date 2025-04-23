@@ -34,6 +34,11 @@ function generateCode() {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
+// 기본 경로 처리
+app.get('/', (req, res) => {
+  res.sendFile(__dirname + '/index.html'); // index.html 파일 반환
+});
+
 // 이메일 인증번호 요청 처리
 app.post('/send-code', (req, res) => {
   const email = `${req.body.email}@lsautomotive.com`;
