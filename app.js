@@ -41,6 +41,11 @@ app.post('/send-code', (req, res) => {
   res.redirect('/verify');
 });
 
+// GET 요청 처리 추가
+app.get('/send-code', (req, res) => {
+  res.redirect('/'); // 클라이언트를 메인 페이지로 리다이렉트
+});
+
 // 인증번호 입력 페이지
 app.get('/verify', (req, res) => {
   if (!req.session.authCode) {
