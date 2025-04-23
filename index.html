@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>이메일 인증</title>
+</head>
+<body>
+  <h1>이메일 인증</h1>
+  <form id="emailForm" action="/send-code" method="POST">
+    <label for="email">이메일:</label>
+    <input type="text" id="email" name="email" placeholder="아이디 입력">
+    <span>@lsautomotive.com</span>
+    <button type="submit">인증번호 받기</button>
+  </form>
+</body>
+</html>
