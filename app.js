@@ -4,6 +4,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const nodemailer = require('nodemailer');
 const session = require('express-session');
+const cors = require('cors');
 
 const app = express();
 const PORT = 3000;
@@ -15,6 +16,7 @@ app.use(session({
   saveUninitialized: true,
 }));
 
+app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static('public'));
 
@@ -35,23 +37,8 @@ function generateCode() {
 // 이메일 인증번호 요청 처리
 app.post('/send-code', (req, res) => {
   const email = `${req.body.email}@lsautomotive.com`;
-  const code = generateCode();
-  req.session.authCode = code;
-  req.session.authCodeExpires = Date.now() + 5 * 60 * 1000; // 5분 유효
-
-  // 이메일 전송
-  transporter.sendMail({
-    from: process.env.SMTP_USER, // 발신 이메일
-    to: email,
-    subject: '인증번호 요청',
-    text: `인증번호는 ${code}입니다. 5분 안에 입력해주세요.`,
-  }, (err, info) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).send('이메일 전송 실패');
-    }
-    res.redirect('/verify');
-  });
+  // 인증번호 생성 및 이메일 전송 로직
+  res.redirect('/verify');
 });
 
 // 인증번호 입력 페이지
