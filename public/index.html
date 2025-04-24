@@ -10,11 +10,32 @@
   <form id="emailForm" method="POST">
     <label for="email">이메일:</label>
     <input type="text" id="email" name="email" placeholder="아이디 입력">
-    <span>@lsautomotive.com</span>
+    <span>@</span>
+    <input type="text" id="domain" name="domain" placeholder="도메인 입력" disabled>
+    <select id="domainSelect">
+      <option value="naver.com">naver.com</option>
+      <option value="gmail.com">gmail.com</option>
+      <option value="custom">직접 입력</option>
+    </select>
     <button type="submit">인증번호 받기</button>
   </form>
   <script>
-    // 현재 서버의 호스트 주소를 동적으로 설정
+    const domainInput = document.getElementById('domain');
+    const domainSelect = document.getElementById('domainSelect');
+
+    // 콤보박스 변경 시 동작
+    domainSelect.addEventListener('change', () => {
+      if (domainSelect.value === 'custom') {
+        domainInput.disabled = false; // 직접 입력 활성화
+        domainInput.value = ''; // 입력창 초기화
+        domainInput.focus(); // 입력창에 포커스
+      } else {
+        domainInput.disabled = true; // 입력창 비활성화
+        domainInput.value = domainSelect.value; // 선택된 도메인 입력
+      }
+    });
+
+    // 폼 action 설정
     const form = document.getElementById('emailForm');
     form.action = `${window.location.origin}/send-code`;
   </script>
