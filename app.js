@@ -38,8 +38,31 @@ function generateCode() {
 // 이메일 인증번호 요청 처리
 app.post('/send-code', (req, res) => {
   const email = `${req.body.email}@lsautomotive.com`;
-  // 인증번호 생성 및 이메일 전송 로직
-  res.redirect('/verify');
+
+  // 인증번호 생성
+  const authCode = generateCode();
+  console.log('생성된 인증번호:', authCode);
+
+  // 인증번호를 세션에 저장
+  req.session.authCode = authCode;
+  req.session.authCodeExpires = Date.now() + 5 * 60 * 1000; // 5분 후 만료
+
+  // 이메일 전송
+  transporter.sendMail({
+    from: process.env.SMTP_USER,
+    to: email,
+    subject: '인증번호 요청',
+    text: `인증번호는 ${authCode}입니다. 5분 안에 입력해주세요.`,
+  }, (err, info) => {
+    if (err) {
+      console.error('이메일 전송 실패:', err);
+      return res.status(500).send('이메일 전송에 실패했습니다.');
+    }
+    console.log('이메일 전송 성공:', info.response);
+
+    // 인증번호 입력 페이지로 리다이렉트
+    res.redirect('/verify');
+  });
 });
 
 // GET 요청 처리 추가
@@ -50,7 +73,7 @@ app.get('/send-code', (req, res) => {
 // 인증번호 입력 페이지
 app.get('/verify', (req, res) => {
   if (!req.session.authCode) {
-    return res.redirect('/');
+    return res.redirect('/'); // 인증번호가 없으면 메인 페이지로 리다이렉트
   }
   res.send(`
     <h1>인증번호 입력</h1>
