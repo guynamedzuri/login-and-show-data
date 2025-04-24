@@ -23,10 +23,12 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Nodemailer 설정
 const transporter = nodemailer.createTransport({
-  service: process.env.SMTP_SERVICE, // .env에서 가져온 값
+  host: 'smtp.gmail.com', // Gmail SMTP 서버
+  port: 587, // TLS를 사용하는 포트
+  secure: false, // TLS를 사용하려면 false로 설정
   auth: {
-    user: process.env.SMTP_USER, // .env에서 가져온 값
-    pass: process.env.SMTP_PASS, // .env에서 가져온 값
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
   },
 });
 
