@@ -39,7 +39,9 @@ function generateCode() {
 
 // 이메일 인증번호 요청 처리
 app.post('/send-code', (req, res) => {
-  const email = `${req.body.email}@lsautomotive.com`;
+  const email = req.body.email; // 이메일 아이디
+  const domain = req.body.domain; // 도메인
+  const fullEmail = `${email}@${domain}`; // 전체 이메일 주소 조합
 
   // 인증번호 생성
   const authCode = generateCode();
@@ -52,7 +54,7 @@ app.post('/send-code', (req, res) => {
   // 이메일 전송
   transporter.sendMail({
     from: process.env.SMTP_USER,
-    to: email,
+    to: fullEmail,
     subject: '인증번호 요청',
     text: `인증번호는 ${authCode}입니다. 5분 안에 입력해주세요.`,
   }, (err, info) => {
