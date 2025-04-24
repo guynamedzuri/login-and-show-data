@@ -4,6 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>이메일 인증</title>
+  <style>
+    .error {
+      color: red;
+      font-size: 0.9em;
+      margin-top: 5px;
+    }
+  </style>
 </head>
 <body>
   <h1>이메일 인증</h1>
@@ -18,10 +25,19 @@
       <option value="custom">직접 입력</option>
     </select>
     <button type="submit">인증번호 받기</button>
+    <p id="errorMessage" class="error" style="display: none;">이메일을 정확히 입력해주세요!</p>
   </form>
   <script>
+    const emailInput = document.getElementById('email');
     const domainInput = document.getElementById('domain');
     const domainSelect = document.getElementById('domainSelect');
+    const errorMessage = document.getElementById('errorMessage');
+    const form = document.getElementById('emailForm');
+
+    // 초기화 상태 설정
+    window.addEventListener('DOMContentLoaded', () => {
+      domainInput.value = domainSelect.value; // 콤보박스 기본값(naver.com)을 도메인 입력창에 설정
+    });
 
     // 콤보박스 변경 시 동작
     domainSelect.addEventListener('change', () => {
@@ -35,9 +51,23 @@
       }
     });
 
-    // 폼 action 설정
-    const form = document.getElementById('emailForm');
-    form.action = `${window.location.origin}/send-code`;
+    // 폼 제출 시 유효성 검사
+    form.addEventListener('submit', (e) => {
+      e.preventDefault(); // 기본 제출 동작 방지
+      const email = emailInput.value.trim();
+      const domain = domainInput.value.trim();
+
+      // 이메일과 도메인 유효성 검사
+      if (!email || !domain) {
+        errorMessage.style.display = 'block'; // 에러 메시지 표시
+        emailInput.value = ''; // 이메일 입력창 초기화
+        domainInput.value = ''; // 도메인 입력창 초기화
+        emailInput.focus(); // 이메일 입력창에 포커스
+      } else {
+        errorMessage.style.display = 'none'; // 에러 메시지 숨기기
+        form.submit(); // 폼 제출
+      }
+    });
   </script>
 </body>
 </html>
