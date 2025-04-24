@@ -7,11 +7,16 @@
 </head>
 <body>
   <h1>이메일 인증</h1>
-  <form id="emailForm" action="http://localhost:3000/send-code" method="POST">
+  <form id="emailForm" method="POST">
     <label for="email">이메일:</label>
     <input type="text" id="email" name="email" placeholder="아이디 입력">
     <span>@lsautomotive.com</span>
     <button type="submit">인증번호 받기</button>
   </form>
+  <script>
+    // 현재 서버의 호스트 주소를 동적으로 설정
+    const form = document.getElementById('emailForm');
+    form.action = `${window.location.origin}/send-code`;
+  </script>
 </body>
 </html>
