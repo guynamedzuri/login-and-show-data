@@ -42,11 +42,11 @@
     // 콤보박스 변경 시 동작
     domainSelect.addEventListener('change', () => {
       if (domainSelect.value === 'custom') {
-        domainInput.disabled = false; // 직접 입력 활성화
+        domainInput.readOnly = false; // 직접 입력 활성화
         domainInput.value = ''; // 입력창 초기화
         domainInput.focus(); // 입력창에 포커스
       } else {
-        domainInput.disabled = true; // 입력창 비활성화
+        domainInput.readOnly = true; // 입력창 읽기 전용
         domainInput.value = domainSelect.value; // 선택된 도메인 입력
       }
     });
