@@ -80,29 +80,42 @@ app.get('/verify', (req, res) => {
     return res.redirect('/'); // 인증번호가 없으면 메인 페이지로 리다이렉트
   }
   res.send(`
-    <h1>인증번호 입력</h1>
-    <form id="verifyForm" action="/verify-code" method="POST">
-      <label for="code">인증번호:</label>
-      <input type="text" id="code" name="code">
-      <button type="submit">인증</button>
-    </form>
-    <p id="timer"></p>
-    <script>
-      const expiresAt = ${req.session.authCodeExpires};
-      const timer = document.getElementById('timer');
-      function updateTimer() {
-        const now = Date.now();
-        const remaining = Math.max(0, expiresAt - now);
-        const seconds = Math.floor(remaining / 1000);
-        timer.textContent = \`남은 시간: \${seconds}초\`;
-        if (remaining > 0) {
-          setTimeout(updateTimer, 1000);
-        } else {
-          timer.textContent = '인증번호가 만료되었습니다.';
+    <!DOCTYPE html>
+    <html lang="ko">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>인증번호 입력</title>
+      <link rel="stylesheet" href="/styles.css">
+    </head>
+    <body>
+      <div class="container">
+        <h1>인증번호 입력</h1>
+        <form id="verifyForm" action="/verify-code" method="POST">
+          <label for="code">인증번호:</label>
+          <input type="text" id="code" name="code" placeholder="인증번호 입력">
+          <button type="submit">인증</button>
+        </form>
+        <p id="timer"></p>
+      </div>
+      <script>
+        const expiresAt = ${req.session.authCodeExpires};
+        const timer = document.getElementById('timer');
+        function updateTimer() {
+          const now = Date.now();
+          const remaining = Math.max(0, expiresAt - now);
+          const seconds = Math.floor(remaining / 1000);
+          timer.textContent = \`남은 시간: \${seconds}초\`;
+          if (remaining > 0) {
+            setTimeout(updateTimer, 1000);
+          } else {
+            timer.textContent = '인증번호가 만료되었습니다.';
+          }
         }
-      }
-      updateTimer();
-    </script>
+        updateTimer();
+      </script>
+    </body>
+    </html>
   `);
 });
 
@@ -121,7 +134,26 @@ app.get('/success', (req, res) => {
   if (!req.session.isAuthenticated) {
     return res.redirect('/');
   }
-  res.send('<h1>인증 성공!</h1>');
+  res.send(`
+    <!DOCTYPE html>
+    <html lang="ko">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>인증 성공</title>
+      <link rel="stylesheet" href="/styles.css">
+    </head>
+    <body>
+      <div class="container">
+        <h1>인증 성공!</h1>
+        <p>인증이 성공적으로 완료되었습니다.</p>
+        <a href="/" style="text-decoration: none;">
+          <button>메인 페이지로 이동</button>
+        </a>
+      </div>
+    </body>
+    </html>
+  `);
 });
 
 // 서버 시작
