@@ -5,6 +5,7 @@ const bodyParser = require('body-parser');
 const nodemailer = require('nodemailer');
 const session = require('express-session');
 const cors = require('cors');
+const fs = require('fs');
 const path = require('path');
 
 const app = express();
@@ -90,7 +91,7 @@ app.get('/verify', (req, res) => {
     </head>
     <body>
       <div class="container">
-        <h1>인증번호 입력</h1>
+        <h1 align="center">인증번호 입력</h1>
         <form id="verifyForm" action="/verify-code" method="POST">
           <label for="code">인증번호:</label>
           <input type="text" id="code" name="code" placeholder="인증번호 입력">
@@ -134,26 +135,79 @@ app.get('/success', (req, res) => {
   if (!req.session.isAuthenticated) {
     return res.redirect('/');
   }
-  res.send(`
-    <!DOCTYPE html>
-    <html lang="ko">
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>인증 성공</title>
-      <link rel="stylesheet" href="/styles.css">
-    </head>
-    <body>
-      <div class="container">
-        <h1>인증 성공!</h1>
-        <p>인증이 성공적으로 완료되었습니다.</p>
-        <a href="/" style="text-decoration: none;">
-          <button>메인 페이지로 이동</button>
-        </a>
-      </div>
-    </body>
-    </html>
-  `);
+
+  // 사진 폴더 경로
+  const imagesDir = path.join(__dirname, 'public/images');
+
+  // 폴더 내 이미지 파일 읽기
+  fs.readdir(imagesDir, (err, files) => {
+    if (err) {
+      console.error('이미지 파일을 읽는 중 오류 발생:', err);
+      return res.status(500).send('이미지 파일을 로드할 수 없습니다.');
+    }
+
+    // 이미지 파일만 필터링 (jpg, png 등)
+    const imageFiles = files.filter(file => /\.(jpg|jpeg|png|gif)$/i.test(file));
+
+    // HTML 렌더링
+    res.send(`
+      <!DOCTYPE html>
+      <html lang="ko">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>인증 성공</title>
+        <link rel="stylesheet" href="/styles.css">
+      </head>
+      <body>
+        <div class="container">
+          <div id="imageViewer">
+            <img id="currentImage" src="/images/${imageFiles[0]}" alt="이미지" style="max-width: 100%; height: auto;">
+          </div>
+          <div id="buttonContainer" align="center">
+          <button id="prevButton" style="display: none;">이전</button>
+          <button id="nextButton">다음</button>
+          </div>
+        </div>
+        <script>
+          const imageFiles = ${JSON.stringify(imageFiles)};
+          let currentIndex = 0;
+
+          const prevButton = document.getElementById('prevButton');
+          const nextButton = document.getElementById('nextButton');
+          const currentImage = document.getElementById('currentImage');
+
+          // 이전 버튼 클릭
+          prevButton.addEventListener('click', () => {
+            if (currentIndex > 0) {
+              currentIndex--;
+              currentImage.src = '/images/' + imageFiles[currentIndex];
+              updateButtons();
+            }
+          });
+
+          // 다음 버튼 클릭
+          nextButton.addEventListener('click', () => {
+            if (currentIndex < imageFiles.length - 1) {
+              currentIndex++;
+              currentImage.src = '/images/' + imageFiles[currentIndex];
+              updateButtons();
+            }
+          });
+
+          // 버튼 상태 업데이트
+          function updateButtons() {
+            prevButton.style.display = currentIndex === 0 ? 'none' : 'inline-block';
+            nextButton.style.display = currentIndex === imageFiles.length - 1 ? 'none' : 'inline-block';
+          }
+
+          // 초기 버튼 상태 설정
+          updateButtons();
+        </script>
+      </body>
+      </html>
+    `);
+  });
 });
 
 // 서버 시작

@@ -18,15 +18,17 @@ form {
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  width: 90%;
-  max-width: 400px;
+  width: auto; /* 내부 요소에 맞게 크기 조정 */
+  max-width: 100%; /* 화면 크기를 초과하지 않도록 제한 */
   box-sizing: border-box;
+  overflow-x: auto; /* 가로 스크롤 활성화 */
 }
 
 .form-row {
   display: flex;
   align-items: center;
   gap: 10px;
+  white-space: nowrap; /* 줄바꿈 방지 */
 }
 
 label {
@@ -40,7 +42,6 @@ input, select, button {
   border: 1px solid #ccc;
   border-radius: 4px;
   box-sizing: border-box;
-  flex: 1;
 }
 
 input:focus, select:focus, button:focus {
@@ -63,4 +64,19 @@ button:hover {
   color: red;
   font-size: 0.9em;
   margin-top: -10px;
+}
+
+#imageViewer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 20px 0;
+}
+
+#imageViewer img {
+  max-width: 100%; /* 화면 너비에 맞게 조정 */
+  max-height: 80vh; /* 화면 높이의 80%를 넘지 않도록 제한 */
+  object-fit: contain; /* 이미지 비율 유지 */
+  border: 1px solid #ccc;
+  border-radius: 8px;
 }
