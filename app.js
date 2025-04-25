@@ -165,8 +165,8 @@ app.get('/success', (req, res) => {
             <img id="currentImage" src="/images/${imageFiles[0]}" alt="이미지" style="max-width: 100%; height: auto;">
           </div>
           <div id="buttonContainer" align="center">
-          <button id="prevButton" style="display: none;">이전</button>
-          <button id="nextButton">다음</button>
+            <button id="prevButton" style="display: none;">이전</button>
+            <button id="nextButton">다음</button>
           </div>
         </div>
         <script>
@@ -177,11 +177,18 @@ app.get('/success', (req, res) => {
           const nextButton = document.getElementById('nextButton');
           const currentImage = document.getElementById('currentImage');
 
+          // 이미지 미리 로드
+          const preloadedImages = [];
+          imageFiles.forEach((file, index) => {
+            preloadedImages[index] = new Image();
+            preloadedImages[index].src = '/images/' + file;
+          });
+
           // 이전 버튼 클릭
           prevButton.addEventListener('click', () => {
             if (currentIndex > 0) {
               currentIndex--;
-              currentImage.src = '/images/' + imageFiles[currentIndex];
+              currentImage.src = preloadedImages[currentIndex].src;
               updateButtons();
             }
           });
@@ -190,7 +197,7 @@ app.get('/success', (req, res) => {
           nextButton.addEventListener('click', () => {
             if (currentIndex < imageFiles.length - 1) {
               currentIndex++;
-              currentImage.src = '/images/' + imageFiles[currentIndex];
+              currentImage.src = preloadedImages[currentIndex].src;
               updateButtons();
             }
           });
