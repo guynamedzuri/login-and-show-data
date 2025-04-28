@@ -172,6 +172,10 @@ app.get('/success', (req, res) => {
 
 // 복리후생 상세 페이지
 app.get('/welfare/:id', (req, res) => {
+  if (!req.session.isAuthenticated) {
+    return res.redirect('/'); // 인증되지 않은 경우 메인 페이지로 리다이렉트
+  }
+
   const welfareId = parseInt(req.params.id, 10);
   const welfareItem = welfareList.find(item => item.id === welfareId);
 
@@ -179,17 +183,14 @@ app.get('/welfare/:id', (req, res) => {
     return res.status(404).send('<h1>404 - 복리후생 정보를 찾을 수 없습니다.</h1>');
   }
 
-  // 동적으로 파일 경로 설정
   const filePath = path.join(__dirname, 'public', 'contents', `${welfareId}.html`);
 
-  // 파일 읽기
   fs.readFile(filePath, 'utf8', (err, data) => {
     if (err) {
       console.error('파일 읽기 오류:', err);
       return res.status(500).send('파일을 읽는 중 오류가 발생했습니다.');
     }
 
-    // HTML 렌더링
     res.send(`
       <!DOCTYPE html>
       <html lang="ko">
@@ -202,7 +203,7 @@ app.get('/welfare/:id', (req, res) => {
       <body>
         <div class="container">
           <h1>${welfareItem.title}</h1>
-          ${data} <!-- ${welfareId}.html 파일 내용 삽입 -->
+          ${data}
           <a href="/success" class="back-link">← 복리후생 리스트로 돌아가기</a>
         </div>
       </body>
