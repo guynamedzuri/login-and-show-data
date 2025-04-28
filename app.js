@@ -90,7 +90,7 @@ app.get('/verify', (req, res) => {
       <link rel="stylesheet" href="/styles.css">
     </head>
     <body>
-      <div class="container">
+      <div class="verify-container">
         <h1 align="center">인증번호 입력</h1>
         <form id="verifyForm" action="/verify-code" method="POST">
           <label for="code">인증번호:</label>
@@ -130,24 +130,64 @@ app.post('/verify-code', (req, res) => {
   res.send('<h1>인증 실패</h1><a href="/">다시 시도</a>');
 });
 
-// 인증 성공 페이지
+// 복리후생 리스트 데이터
+const welfareList = [
+  { id: 1, title: '[복리후생/제휴] 시우역_호텔스퀘어 이용 안내', description: '직원들의 건강을 위해 연 1회 건강검진을 지원합니다.' },
+  { id: 2, title: '리조트 사용신청 안내_한화리조트/소노호텔&리조트', description: '직원의 자녀 학자금을 지원합니다.' },
+  { id: 3, title: '[복리후생/제휴]2025년 봄나들이 특별 판매 (티켓드림)', description: '사내 동호회 활동비를 지원합니다.' },
+  { id: 4, title: '[복리후생/제휴] 2025년 3월 아이코젠 이용 안내의 건', description: '직원들을 위한 휴양시설을 제공합니다.' },
+];
+
+// 인증 성공 페이지 (복리후생 리스트)
 app.get('/success', (req, res) => {
   if (!req.session.isAuthenticated) {
     return res.redirect('/');
   }
 
-  // 사진 폴더 경로
-  const imagesDir = path.join(__dirname, 'public/images');
+  // HTML 렌더링
+  res.send(`
+    <!DOCTYPE html>
+    <html lang="ko">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>복리후생 리스트</title>
+      <link rel="stylesheet" href="/styles.css">
+    </head>
+    <body>
+      <div class="container">
+        <h1>LSA 임직원을 위한 복리후생 리스트!</h1>
+        <ul class="welfare-list">
+          ${welfareList.map(item => `
+            <li>
+              <a href="/welfare/${item.id}" class="welfare-link">${item.title}</a>
+            </li>
+          `).join('')}
+        </ul>
+      </div>
+    </body>
+    </html>
+  `);
+});
 
-  // 폴더 내 이미지 파일 읽기
-  fs.readdir(imagesDir, (err, files) => {
+// 복리후생 상세 페이지
+app.get('/welfare/:id', (req, res) => {
+  const welfareId = parseInt(req.params.id, 10);
+  const welfareItem = welfareList.find(item => item.id === welfareId);
+
+  if (!welfareItem) {
+    return res.status(404).send('<h1>404 - 복리후생 정보를 찾을 수 없습니다.</h1>');
+  }
+
+  // 동적으로 파일 경로 설정
+  const filePath = path.join(__dirname, 'public', 'contents', `${welfareId}.html`);
+
+  // 파일 읽기
+  fs.readFile(filePath, 'utf8', (err, data) => {
     if (err) {
-      console.error('이미지 파일을 읽는 중 오류 발생:', err);
-      return res.status(500).send('이미지 파일을 로드할 수 없습니다.');
+      console.error('파일 읽기 오류:', err);
+      return res.status(500).send('파일을 읽는 중 오류가 발생했습니다.');
     }
-
-    // 이미지 파일만 필터링 (jpg, png 등)
-    const imageFiles = files.filter(file => /\.(jpg|jpeg|png|gif)$/i.test(file));
 
     // HTML 렌더링
     res.send(`
@@ -156,61 +196,15 @@ app.get('/success', (req, res) => {
       <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>인증 성공</title>
+        <title>${welfareItem.title}</title>
         <link rel="stylesheet" href="/styles.css">
       </head>
       <body>
         <div class="container">
-          <div id="imageViewer">
-            <img id="currentImage" src="/images/${imageFiles[0]}" alt="이미지" style="max-width: 100%; height: auto;">
-          </div>
-          <div id="buttonContainer" align="center">
-            <button id="prevButton" style="display: none;">이전</button>
-            <button id="nextButton">다음</button>
-          </div>
+          <h1>${welfareItem.title}</h1>
+          ${data} <!-- ${welfareId}.html 파일 내용 삽입 -->
+          <a href="/success" class="back-link">← 복리후생 리스트로 돌아가기</a>
         </div>
-        <script>
-          const imageFiles = ${JSON.stringify(imageFiles)};
-          let currentIndex = 0;
-
-          const prevButton = document.getElementById('prevButton');
-          const nextButton = document.getElementById('nextButton');
-          const currentImage = document.getElementById('currentImage');
-
-          // 이미지 미리 로드
-          const preloadedImages = [];
-          imageFiles.forEach((file, index) => {
-            preloadedImages[index] = new Image();
-            preloadedImages[index].src = '/images/' + file;
-          });
-
-          // 이전 버튼 클릭
-          prevButton.addEventListener('click', () => {
-            if (currentIndex > 0) {
-              currentIndex--;
-              currentImage.src = preloadedImages[currentIndex].src;
-              updateButtons();
-            }
-          });
-
-          // 다음 버튼 클릭
-          nextButton.addEventListener('click', () => {
-            if (currentIndex < imageFiles.length - 1) {
-              currentIndex++;
-              currentImage.src = preloadedImages[currentIndex].src;
-              updateButtons();
-            }
-          });
-
-          // 버튼 상태 업데이트
-          function updateButtons() {
-            prevButton.style.display = currentIndex === 0 ? 'none' : 'inline-block';
-            nextButton.style.display = currentIndex === imageFiles.length - 1 ? 'none' : 'inline-block';
-          }
-
-          // 초기 버튼 상태 설정
-          updateButtons();
-        </script>
       </body>
       </html>
     `);
